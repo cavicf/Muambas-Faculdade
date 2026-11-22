@@ -1,10 +1,15 @@
 import Link from "next/link";
 import styles from "./Header.module.css";
-
-const nomeUsuario = "Camily";
-const quantidadeCarrinho = 0;
+import { carrinho, usuarioLogado } from "@/mocks/mock-data";
 
 export default function Header() {
+  const nomeUsuario = usuarioLogado?.name;
+
+  let quantidadeCarrinho = 0;
+  for (const productId in carrinho) {
+    quantidadeCarrinho += carrinho[productId];
+  }
+
   return (
     <header className={styles.header}>
       <div className={styles.faixa}></div>
