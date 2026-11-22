@@ -1,0 +1,42 @@
+.conteudo {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.rotulo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.rotulo textarea {
+  resize: vertical;
+}
+
+.resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.total {
+  padding-top: 10px;
+  border-top: 1px solid var(--borda);
+  font-weight: 700;
+}

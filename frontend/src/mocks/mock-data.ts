@@ -251,7 +251,10 @@ export const produtos: Product[] = [
 ];
 
 
-export const carrinho: Cart = {};
+export const carrinho: Cart = {
+  "fone-bluetooth-pulse": 1,
+  "camiseta-basica-algodao": 2,
+};
 
 
 export const usuarios: User[] = [
