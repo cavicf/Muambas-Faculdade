@@ -1,0 +1,30 @@
+.produto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.marca {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--texto-claro);
+}
+
+.titulo {
+  font-weight: 500;
+}
+
+.preco {
+  color: var(--azul);
+  font-weight: 700;
+}
+
+.disponibilidade {
+  font-size: 12px;
+  color: var(--texto-claro);
+}
+
+.esgotado {
+  font-size: 12px;
+  color: var(--vermelho);
+}
