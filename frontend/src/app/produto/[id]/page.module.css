@@ -1,0 +1,45 @@
+.voltar {
+  font-size: 14px;
+  color: var(--texto-claro);
+}
+
+.conteudo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 16px;
+}
+
+.informacoes {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.marcaECategoria {
+  font-size: 13px;
+  color: var(--texto-claro);
+}
+
+.preco {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--azul);
+}
+
+.disponibilidade {
+  color: var(--texto-claro);
+}
+
+.esgotado {
+  color: var(--vermelho);
+}
+
+.compra {
+  display: flex;
+  gap: 12px;
+}
+
+.quantidade {
+  width: 80px;
+}
