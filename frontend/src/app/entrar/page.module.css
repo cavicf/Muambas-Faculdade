@@ -1,0 +1,29 @@
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+  margin: 20px auto;
+}
+
+.abas {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.aba,
+.abaSelecionada {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  background: white;
+  cursor: pointer;
+}
+
+.abaSelecionada {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: white;
+}
