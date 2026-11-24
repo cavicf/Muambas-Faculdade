@@ -1,69 +1,81 @@
-import Image from "next/image";
 import styles from "./page.module.css";
+import ProductCard from "@/components/ProductCard/ProductCard";
+import { categorias, produtos } from "@/mocks/mock-data";
+import { formatarPreco } from "@/utils/formatarPreco";
 
-export default function Home() {
+const PRECO_MAXIMO_DO_FILTRO = 400;
+
+export default function Catalogo() {
+  const todasAsMarcas: string[] = [];
+  
+  for (const produto of produtos) {
+    if (!todasAsMarcas.includes(produto.vendor)) {
+      todasAsMarcas.push(produto.vendor);
+    }
+  }
+  todasAsMarcas.sort();
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <div>
+      <input className="campoBusca" placeholder="Buscar produtos, marcas..." />
+
+      <div className={styles.conteudo}>
+        <aside className={`card ${styles.lateral}`}>
+          <h4 className={styles.tituloSecao}>Categorias</h4>
+
+          <button className={styles.categoriaSelecionada}>
+            Todas <span>{produtos.length}</span>
+          </button>
+
+          {categorias.map((categoria) => (
+            <button key={categoria._id} className={styles.categoria}>
+              {categoria.name} <span>{categoria.productCount}</span>
+            </button>
+          ))}
+
+          <hr className={styles.divisoria} />
+
+          <h4 className={styles.tituloSecao}>Filtros</h4>
+
+          <label className={styles.rotulo}>
+            Marca
+            <select className="campoBusca">
+              <option>Todas</option>
+              {todasAsMarcas.map((marca) => (
+                <option key={marca}>{marca}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className={styles.rotulo}>
+            Preço até {formatarPreco(PRECO_MAXIMO_DO_FILTRO)}
+            <input
+              type="range"
+              min={0}
+              max={PRECO_MAXIMO_DO_FILTRO}
+              defaultValue={PRECO_MAXIMO_DO_FILTRO}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          </label>
+
+          <label className={styles.rotulo}>
+            Ordenar
+            <select className="campoBusca">
+              <option>Menor preço</option>
+              <option>Maior preço</option>
+            </select>
+          </label>
+        </aside>
+
+        <section>
+          <p className={styles.contagem}>{produtos.length} produto(s)</p>
+
+          <div className={styles.grade}>
+            {produtos.map((produto) => (
+              <ProductCard key={produto._id} produto={produto} />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

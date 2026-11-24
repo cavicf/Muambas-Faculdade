@@ -1,0 +1,49 @@
+.header {
+  background: white;
+  border-bottom: 1px solid var(--borda);
+}
+
+.faixa {
+  height: 6px;
+  background: linear-gradient(to right, var(--azul), var(--cinza), var(--vermelho));
+}
+
+.conteudo {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 22px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-family: var(--fonte-titulo), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.logoDestaque {
+  color: var(--vermelho);
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 16px;
+}
+
+.usuario {
+  color: var(--texto-claro);
+  display: flex;
+  gap: 12px;
+}
+
+.sair {
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--texto-claro);
+}

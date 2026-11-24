@@ -1,0 +1,19 @@
+.opcoes {
+  display: flex;
+  gap: 8px;
+}
+
+.opcao,
+.opcaoSelecionada {
+  padding: 6px 14px;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  background: white;
+  cursor: pointer;
+}
+
+.opcaoSelecionada {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: white;
+}
