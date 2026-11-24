@@ -1,0 +1,18 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Arquivos de compilação
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# Cobertura de testes
+coverage/
