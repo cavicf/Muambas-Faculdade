@@ -5,7 +5,7 @@ const corDeFundoPorCategoria: Record<string, string> = {
   moda: "#fde0d9",
   beleza: "#fbe3ef",
   casa: "#e0f1e2",
-  mercearia: "#fcefd2",
+  mercearia: "#fcefd2"
 };
 
 type ProductThumbnailProps = {
@@ -13,7 +13,10 @@ type ProductThumbnailProps = {
   categoryId: string;
 };
 
-export default function ProductThumbnail({ title, categoryId }: ProductThumbnailProps) {
+export default function ProductThumbnail({
+  title,
+  categoryId
+}: ProductThumbnailProps) {
   const primeirasDuasPalavras = title.split(" ").slice(0, 2);
   const iniciais = primeirasDuasPalavras.map((palavra) => palavra[0]).join("");
 

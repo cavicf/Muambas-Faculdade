@@ -1,11 +1,18 @@
 import Link from "next/link";
 import styles from "./page.module.css";
-import { itensPedido, pagamentos, pedidos, usuarioLogado } from "@/mocks/mock-data";
+import {
+  itensPedido,
+  pagamentos,
+  pedidos,
+  usuarioLogado
+} from "@/mocks/mock-data";
 import { formatarData } from "@/utils/formatarData";
 import { formatarPreco } from "@/utils/formatarPreco";
 
 export default function MeusPedidos() {
-  const pedidosDoUsuario = pedidos.filter((pedido) => pedido.user_id === usuarioLogado?.id);
+  const pedidosDoUsuario = pedidos.filter(
+    (pedido) => pedido.user_id === usuarioLogado?.id
+  );
   pedidosDoUsuario.sort((pedidoA, pedidoB) => pedidoB.id - pedidoA.id);
 
   if (pedidosDoUsuario.length === 0) {
@@ -26,19 +33,28 @@ export default function MeusPedidos() {
 
       <div className={styles.lista}>
         {pedidosDoUsuario.map((pedido, posicao) => {
-          const itensDoPedido = itensPedido.filter((item) => item.order_id === pedido.id);
-          const pagamento = pagamentos.find((pagamento) => pagamento.order_id === pedido.id);
+          const itensDoPedido = itensPedido.filter(
+            (item) => item.order_id === pedido.id
+          );
+          const pagamento = pagamentos.find(
+            (pagamento) => pagamento.order_id === pedido.id
+          );
           const numeroDoPedido = String(pedido.id).padStart(3, "0");
-          const statusFormatado = pedido.status[0].toUpperCase() + pedido.status.slice(1);
+          const statusFormatado =
+            pedido.status[0].toUpperCase() + pedido.status.slice(1);
           const ehOMaisRecente = posicao === 0;
 
           return (
             <details key={pedido.id} className="card" open={ehOMaisRecente}>
               <summary className={styles.cabecalho}>
                 <strong>Pedido #{numeroDoPedido}</strong>
-                <span className={styles.data}>{formatarData(pedido.created_at)}</span>
+                <span className={styles.data}>
+                  {formatarData(pedido.created_at)}
+                </span>
                 <span className={styles.status}>{statusFormatado}</span>
-                <strong className={styles.total}>{formatarPreco(pedido.total_amount)}</strong>
+                <strong className={styles.total}>
+                  {formatarPreco(pedido.total_amount)}
+                </strong>
               </summary>
 
               <table className={styles.tabela}>
@@ -63,7 +79,8 @@ export default function MeusPedidos() {
               </table>
 
               <p className={styles.entrega}>
-                Entrega: {pedido.shipping_address_snapshot} · Pagamento: {pagamento?.method}
+                Entrega: {pedido.shipping_address_snapshot} · Pagamento:{" "}
+                {pagamento?.method}
               </p>
             </details>
           );

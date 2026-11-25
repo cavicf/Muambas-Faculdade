@@ -17,9 +17,15 @@ export default async function DetalheProduto({ params }: DetalheProdutoProps) {
     notFound();
   }
 
-  const categoria = categorias.find((categoria) => categoria._id === produto.categoryId);
-  const estoqueDoProduto = estoque.find((item) => item.product_id === produto._id);
-  const quantidadeDisponivel = estoqueDoProduto ? estoqueDoProduto.quantity_available : 0;
+  const categoria = categorias.find(
+    (categoria) => categoria._id === produto.categoryId
+  );
+  const estoqueDoProduto = estoque.find(
+    (item) => item.product_id === produto._id
+  );
+  const quantidadeDisponivel = estoqueDoProduto
+    ? estoqueDoProduto.quantity_available
+    : 0;
   const estaEsgotado = quantidadeDisponivel === 0;
 
   return (
@@ -29,7 +35,10 @@ export default async function DetalheProduto({ params }: DetalheProdutoProps) {
       </Link>
 
       <div className={styles.conteudo}>
-        <ProductThumbnail title={produto.title} categoryId={produto.categoryId} />
+        <ProductThumbnail
+          title={produto.title}
+          categoryId={produto.categoryId}
+        />
 
         <div className={styles.informacoes}>
           <p className={styles.marcaECategoria}>
@@ -43,7 +52,9 @@ export default async function DetalheProduto({ params }: DetalheProdutoProps) {
           {estaEsgotado ? (
             <p className={styles.esgotado}>Esgotado</p>
           ) : (
-            <p className={styles.disponibilidade}>Em estoque ({quantidadeDisponivel} disponíveis)</p>
+            <p className={styles.disponibilidade}>
+              Em estoque ({quantidadeDisponivel} disponíveis)
+            </p>
           )}
 
           <p>{produto.description}</p>

@@ -7,7 +7,7 @@ const PRECO_MAXIMO_DO_FILTRO = 400;
 
 export default function Catalogo() {
   const todasAsMarcas: string[] = [];
-  
+
   for (const produto of produtos) {
     if (!todasAsMarcas.includes(produto.vendor)) {
       todasAsMarcas.push(produto.vendor);

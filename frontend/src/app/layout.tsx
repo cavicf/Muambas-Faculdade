@@ -5,22 +5,29 @@ import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--fonte-titulo",
-  subsets: ["latin"],
+  subsets: ["latin"]
 });
 
 const dmSans = DM_Sans({
   variable: "--fonte-texto",
-  subsets: ["latin"],
+  subsets: ["latin"]
 });
 
 export const metadata: Metadata = {
   title: "Muambas UNIFEI",
-  description: "E-commerce",
+  description: "E-commerce"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="pt-BR" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${spaceGrotesk.variable} ${dmSans.variable}`}
+    >
       <body>
         <Header />
         <main className="container">{children}</main>

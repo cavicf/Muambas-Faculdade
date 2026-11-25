@@ -26,14 +26,20 @@ export default function Entrar() {
       {estaCadastrando && (
         <>
           <input className="campoBusca" type="text" placeholder="Nome" />
-          <input className="campoBusca" type="text" placeholder="Nome de usuário" />
+          <input
+            className="campoBusca"
+            type="text"
+            placeholder="Nome de usuário"
+          />
         </>
       )}
 
       <input className="campoBusca" type="email" placeholder="E-mail" />
       <input className="campoBusca" type="password" placeholder="Senha" />
 
-      <button className="botao">{estaCadastrando ? "Criar conta" : "Entrar"}</button>
+      <button className="botao">
+        {estaCadastrando ? "Criar conta" : "Entrar"}
+      </button>
     </div>
   );
 }

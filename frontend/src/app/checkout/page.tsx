@@ -1,6 +1,12 @@
 import styles from "./page.module.css";
 import PaymentOptions from "@/components/PaymentOptions/PaymentOptions";
-import { carrinho, enderecos, produtos, usuarioLogado, Product } from "@/mocks/mock-data";
+import {
+  carrinho,
+  enderecos,
+  produtos,
+  usuarioLogado,
+  Product
+} from "@/mocks/mock-data";
 import { formatarPreco } from "@/utils/formatarPreco";
 
 type ItemDoResumo = {
@@ -25,7 +31,9 @@ export default function Checkout() {
     }
   }
 
-  const enderecoDoUsuario = enderecos.find((endereco) => endereco.user_id === usuarioLogado?.id);
+  const enderecoDoUsuario = enderecos.find(
+    (endereco) => endereco.user_id === usuarioLogado?.id
+  );
   const enderecoFormatado = enderecoDoUsuario
     ? `${enderecoDoUsuario.street}, ${enderecoDoUsuario.street_number} - ${enderecoDoUsuario.neighborhood}, ${enderecoDoUsuario.city}/${enderecoDoUsuario.state}`
     : "";
@@ -37,7 +45,11 @@ export default function Checkout() {
 
         <label className={styles.rotulo}>
           Endereço de entrega
-          <textarea className="campoBusca" rows={2} defaultValue={enderecoFormatado} />
+          <textarea
+            className="campoBusca"
+            rows={2}
+            defaultValue={enderecoFormatado}
+          />
         </label>
 
         <div className={styles.rotulo}>

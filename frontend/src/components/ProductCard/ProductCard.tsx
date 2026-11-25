@@ -14,7 +14,10 @@ export default function ProductCard({ produto }: ProductCardProps) {
   return (
     <div className={`card ${styles.produto}`}>
       <Link href={`/produto/${produto._id}`}>
-        <ProductThumbnail title={produto.title} categoryId={produto.categoryId} />
+        <ProductThumbnail
+          title={produto.title}
+          categoryId={produto.categoryId}
+        />
         <p className={styles.marca}>{produto.vendor}</p>
         <p className={styles.titulo}>{produto.title}</p>
       </Link>
