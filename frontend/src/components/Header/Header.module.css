@@ -5,7 +5,12 @@
 
 .faixa {
   height: 6px;
-  background: linear-gradient(to right, var(--azul), var(--cinza), var(--vermelho));
+  background: linear-gradient(
+    to right,
+    var(--azul),
+    var(--cinza),
+    var(--vermelho)
+  );
 }
 
 .conteudo {

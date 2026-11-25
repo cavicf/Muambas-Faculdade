@@ -47,12 +47,17 @@ export default function Carrinho() {
           {itensDoCarrinho.map((item) => (
             <div key={item.produto._id} className={`card ${styles.item}`}>
               <div className={styles.miniatura}>
-                <ProductThumbnail title={item.produto.title} categoryId={item.produto.categoryId} />
+                <ProductThumbnail
+                  title={item.produto.title}
+                  categoryId={item.produto.categoryId}
+                />
               </div>
 
               <div className={styles.nome}>
                 <p>{item.produto.title}</p>
-                <p className={styles.precoUnitario}>{formatarPreco(item.produto.price)} un.</p>
+                <p className={styles.precoUnitario}>
+                  {formatarPreco(item.produto.price)} un.
+                </p>
               </div>
 
               <div className={styles.quantidade}>

@@ -13,7 +13,9 @@ export default function PaymentOptions() {
       {formasDePagamento.map((forma) => (
         <button
           key={forma}
-          className={forma === formaSelecionada ? styles.opcaoSelecionada : styles.opcao}
+          className={
+            forma === formaSelecionada ? styles.opcaoSelecionada : styles.opcao
+          }
           onClick={() => setFormaSelecionada(forma)}
         >
           {forma}
