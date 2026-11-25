@@ -42,9 +42,45 @@ services:
       timeout: 3s
       retries: 10
 
+  # ==========================================
+  # POSTGRESQL - Usuários, estoque, pedidos e pagamentos
+  # ==========================================
+  postgres:
+    image: postgres:17-alpine
+    container_name: muambas-postgres
+    restart: unless-stopped
+
+    # Credenciais apenas para desenvolvimento local.
+    # Podem ser sobrescritas por variáveis de ambiente.
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-muambas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-muambas}
+      POSTGRES_DB: ${POSTGRES_DB:-muambas}
+
+    # Porta local 5433 -> porta interna 5432
+    # (5433 evita conflito com um PostgreSQL instalado na máquina)
+    ports:
+      - "127.0.0.1:5433:5432"
+
+    volumes:
+      # Mantém os dados persistidos
+      - postgres_data:/var/lib/postgresql/data
+
+      # Scripts executados na PRIMEIRA inicialização (volume vazio):
+      # criam todas as tabelas do schema.
+      - ./backend/database/postgres/init:/docker-entrypoint-initdb.d:ro
+
+    # Verifica se o PostgreSQL está aceitando conexões
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 # ==========================================
 # VOLUMES - Persistência dos bancos
 # ==========================================
 volumes:
   mongo_data:
   redis_data:
+  postgres_data:

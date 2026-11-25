@@ -36,6 +36,15 @@ import { CartService } from "./modules/cart/redis/cart.service";
 import { createCartRoutes } from "./modules/cart/redis/cart.routes";
 
 // ==============================================
+// POSTGRESQL - Conexão (usuários, estoque, pedidos)
+// ==============================================
+
+import {
+  connectPostgres,
+  disconnectPostgres
+} from "./config/postgres/postgres";
+
+// ==============================================
 // INICIALIZAÇÃO DA APLICAÇÃO
 // ==============================================
 
@@ -103,6 +112,14 @@ async function main() {
   app.use("/api", createCartRoutes(cartService));
 
   // ==============================================
+  // POSTGRESQL
+  // ==============================================
+
+  // Verifica a conexão com o PostgreSQL. O pool fica
+  // disponível em config/postgres para os módulos futuros.
+  await connectPostgres();
+
+  // ==============================================
   // ROTA DE VERIFICAÇÃO
   // ==============================================
 
@@ -127,7 +144,8 @@ async function main() {
     server.close(async () => {
       await Promise.allSettled([
         disconnectMongo(),
-        disconnectRedis()
+        disconnectRedis(),
+        disconnectPostgres()
       ]);
 
       process.exit(0);
@@ -148,7 +166,8 @@ main().catch(async (error) => {
   // Tenta fechar as conexões existentes.
   await Promise.allSettled([
     disconnectMongo(),
-    disconnectRedis()
+    disconnectRedis(),
+    disconnectPostgres()
   ]);
 
   process.exitCode = 1;
