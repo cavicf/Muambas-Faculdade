@@ -59,6 +59,20 @@ export default async function DetalheProduto({ params }: DetalheProdutoProps) {
 
           <p>{produto.description}</p>
 
+          // TODO (INTEGRACAO REDIS):
+          // Integrar o botão "Adicionar ao carrinho"
+          // com POST /api/cart/items.
+          //
+          // Utilizar o productId real e a quantidade
+          // selecionada pelo usuário.
+          //
+          // O carrinho visitante será identificado
+          // automaticamente pelo cookie HttpOnly.
+          //
+          // A interação deverá ficar em um Client Component.
+          // A validação definitiva do estoque será realizada
+          // pelo PostgreSQL durante o checkout.
+
           <div className={styles.compra}>
             <input
               type="number"
@@ -77,3 +91,4 @@ export default async function DetalheProduto({ params }: DetalheProdutoProps) {
     </div>
   );
 }
+

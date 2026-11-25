@@ -28,9 +28,22 @@ export default function ProductCard({ produto }: ProductCardProps) {
         {produto.availabilityStatus}
       </p>
 
+      // TODO (INTEGRACAO REDIS):
+      // Conectar o botão "Adicionar" ao endpoint
+      // POST /api/cart/items.
+      //
+      // Enviar o ID real do produto e a quantidade.
+      //
+      // O backend será responsável por criar automaticamente
+      // o cookie do visitante, caso ainda não exista.
+      //
+      // Para adicionar eventos de clique, utilizar um
+      // Client Component com "use client".
+
       <button className="botao" disabled={estaEsgotado}>
         Adicionar
       </button>
     </div>
   );
 }
+

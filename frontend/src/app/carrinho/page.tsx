@@ -4,6 +4,30 @@ import ProductThumbnail from "@/components/ProductThumbnail/ProductThumbnail";
 import { carrinho, produtos, Product } from "@/mocks/mock-data";
 import { formatarPreco } from "@/utils/formatarPreco";
 
+// TODO (INTEGRACAO REDIS):
+// Substituir o carrinho estático de @/mocks/mock-data
+// pela consulta ao backend: GET /api/cart.
+//
+// O backend identifica automaticamente o visitante
+// pelo cookie HttpOnly "muambas_guest".
+//
+// Na integração pelo navegador, enviar as requisições
+// com credentials: "include".
+//
+// Os itens retornados pelo Redis contêm apenas
+// productId e quantity. Consultar os dados completos
+// dos produtos no MongoDB por meio da API do catálogo,
+// para apresentar nome, imagem, preço e subtotal.
+//
+// Conectar também os botões de aumentar, diminuir
+// e remover às rotas PATCH e DELETE do carrinho.
+//
+// OBSERVACAO:
+// Como esta página é atualmente um Server Component
+// do Next.js, definir a estratégia de integração:
+// componente cliente para interações ou rotas internas
+// que encaminhem corretamente os cookies.
+
 type ItemDoCarrinho = {
   produto: Product;
   quantidade: number;
@@ -87,3 +111,4 @@ export default function Carrinho() {
     </div>
   );
 }
+
