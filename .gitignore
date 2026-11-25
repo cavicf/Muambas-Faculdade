@@ -1,0 +1,16 @@
+# Dependências
+node_modules/
+
+# Arquivos de ambiente
+.env
+.env.*
+!.env.example
+
+# Arquivos gerados
+dist/
+build/
+.next/
+coverage/
+
+# Logs
+*.log
