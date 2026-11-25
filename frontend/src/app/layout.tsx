@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import Header from "@/components/Header/Header";
 import "./globals.css";
+import GuestCartInitializer from "@/components/GuestCartInitializer/GuestCartInitializer";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--fonte-titulo",
@@ -29,6 +30,9 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${dmSans.variable}`}
     >
       <body>
+        {/* Inicializa a identificação do carrinho visitante. */}
+        <GuestCartInitializer />
+        
         <Header />
         <main className="container">{children}</main>
       </body>

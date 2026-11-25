@@ -5,6 +5,13 @@ import { carrinho, usuarioLogado } from "@/mocks/mock-data";
 export default function Header() {
   const nomeUsuario = usuarioLogado?.name;
 
+// TODO (INTEGRACAO REDIS):
+// Substituir a quantidade simulada do carrinho
+// pelo campo totalItems retornado por GET /api/cart.
+//
+// Atualizar o contador após adicionar, alterar
+// ou remover produtos.
+
   let quantidadeCarrinho = 0;
   for (const productId in carrinho) {
     quantidadeCarrinho += carrinho[productId];
@@ -40,3 +47,4 @@ export default function Header() {
     </header>
   );
 }
+

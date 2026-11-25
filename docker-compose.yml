@@ -1,12 +1,50 @@
 services:
+  # ==========================================
+  # MONGODB - Catálogo de produtos
+  # ==========================================
   mongodb:
     image: mongo:8.0
     container_name: muambas-mongodb
     restart: unless-stopped
+
+    # Porta local 27018 -> porta interna 27017
     ports:
       - "127.0.0.1:27018:27017"
+
+    # Mantém os dados do catálogo persistidos
     volumes:
       - mongo_data:/data/db
 
+  # ==========================================
+  # REDIS - Carrinho de compras
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: muambas-redis
+    restart: unless-stopped
+
+    # Porta local 6380 -> porta interna 6379
+    ports:
+      - "127.0.0.1:6380:6379"
+
+    # Habilita persistência AOF para recuperação
+    # dos dados após reinicializações.
+    command: ["redis-server", "--appendonly", "yes"]
+
+    # Armazena os dados persistentes do Redis
+    volumes:
+      - redis_data:/data
+
+    # Verifica se o Redis está funcionando
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+# ==========================================
+# VOLUMES - Persistência dos bancos
+# ==========================================
 volumes:
   mongo_data:
+  redis_data:
