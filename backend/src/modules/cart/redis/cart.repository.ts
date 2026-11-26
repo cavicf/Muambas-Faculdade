@@ -7,37 +7,41 @@
 //removeItem()	HDEL	                Remover produto
 //clear()	    DEL	                    Esvaziar carrinho
 
+
 import type { RedisConnection } from "../../../config/redis/redis";
 import type { CartItem } from "./cart.types";
-
-// Prazo de validade do carrinho de visitantes: 24 horas.
-export const GUEST_CART_TTL_SECONDS = 24 * 60 * 60;
+import type { CartContext } from "./cart.context";
 
 export class CartRepository {
-  constructor(private readonly redis: RedisConnection) {}
+  constructor(
+    private readonly redis: RedisConnection
+  ) {}
 
-  // Recupera todos os itens de um carrinho.
-  //
-  // Cada carrinho é armazenado como um HASH:
-  // productId -> quantity
-  async getItems(key: string): Promise<CartItem[]> {
-    const hash = await this.redis.hGetAll(key);
+  // Recupera todos os itens do carrinho.
+  // O Redis utiliza um Hash: productId -> quantity.
+  async getItems(
+    context: CartContext
+  ): Promise<CartItem[]> {
+    const hash = await this.redis.hGetAll(context.key);
 
-    return Object.entries(hash).map(([productId, value]) => ({
-      productId,
-      quantity: Number(value)
-    }));
+    return Object.entries(hash).map(
+      ([productId, value]) => ({
+        productId,
+        quantity: Number(value)
+      })
+    );
   }
 
   // Adiciona unidades de um produto ao carrinho.
   //
-  // O script Lua executa a verificação e o incremento
-  // de maneira atômica, evitando que requisições
-  // simultâneas ultrapassem o limite de 99 unidades.
+  // O script Lua garante que a verificacao e a soma
+  // sejam atomicas, respeitando o limite de 99 unidades.
   //
-  // Também renova o TTL do carrinho para 24 horas.
+  // O TTL e definido pelo tipo de carrinho:
+  // visitante: 24 horas
+  // usuario: 7 dias
   async addItem(
-    key: string,
+    context: CartContext,
     productId: string,
     quantity: number
   ): Promise<boolean> {
@@ -59,54 +63,48 @@ export class CartRepository {
     `;
 
     const result = await this.redis.eval(script, {
-      keys: [key],
+      keys: [context.key],
       arguments: [
         productId,
         String(quantity),
-        String(GUEST_CART_TTL_SECONDS)
+        String(context.ttlSeconds)
       ]
     });
 
     return result === 1;
   }
 
-  // Define uma quantidade absoluta para o produto.
-  //
-  // Diferentemente da adição, esta operação substitui
-  // a quantidade anteriormente armazenada.
+  // Substitui a quantidade de um produto.
+  // Tambem renova a validade do carrinho.
   async setQuantity(
-    key: string,
+    context: CartContext,
     productId: string,
     quantity: number
   ): Promise<void> {
     await this.redis
       .multi()
-      .hSet(key, productId, String(quantity))
-      .expire(key, GUEST_CART_TTL_SECONDS)
+      .hSet(context.key, productId, String(quantity))
+      .expire(context.key, context.ttlSeconds) //o tempo para expirar é recebido pelo contexto
       .exec();
   }
 
-  // Remove somente o produto indicado do carrinho.
+  // Remove um produto especifico.
+  // Se o Hash continuar existindo, renova seu TTL.
   async removeItem(
-    key: string,
+    context: CartContext,
     productId: string
   ): Promise<void> {
     await this.redis
       .multi()
-      .hDel(key, productId)
-      .expire(key, GUEST_CART_TTL_SECONDS)
+      .hDel(context.key, productId)
+      .expire(context.key, context.ttlSeconds)
       .exec();
   }
 
-  // Remove todos os itens, excluindo a chave do Redis.
-  async clear(key: string): Promise<void> {
-    await this.redis.del(key);
+  // Esvazia o carrinho e remove sua chave do Redis.
+  async clear(
+    context: CartContext
+  ): Promise<void> {
+    await this.redis.del(context.key);
   }
 }
-
-// TODO (AUTENTICACAO):
-// Quando existir autenticação real, implementar suporte
-// à chave cart:{userId}, com TTL de 7 dias.
-//
-// Atualmente, todas as operações trabalham com
-// carrinhos de visitantes, que possuem TTL de 24 horas.

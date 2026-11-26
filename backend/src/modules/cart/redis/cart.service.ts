@@ -1,8 +1,11 @@
 //Responsável pelas validações e pelo comportamento das operações do carrinho.
 
+
 import type { CatalogService } from "../../catalog/mongoDB/catalog.service";
 
 import { CartRepository } from "./cart.repository";
+
+import type { CartContext } from "./cart.context";
 
 import {
   CartError,
@@ -15,51 +18,63 @@ export class CartService {
     private readonly catalog: CatalogService
   ) {}
 
-  // Verifica se o corpo da requisição é um objeto válido.
-  private validateBody(body: unknown): Record<string, unknown> {
+  // Verifica se o corpo da requisicao e valido.
+  private validateBody(
+    body: unknown
+  ): Record<string, unknown> {
     if (
       body === null ||
       typeof body !== "object" ||
       Array.isArray(body)
     ) {
-      throw new CartError(400, "Corpo da requisição inválido.");
+      throw new CartError(
+        400,
+        "Corpo da requisicao invalido."
+      );
     }
 
     return body as Record<string, unknown>;
   }
 
-  // Verifica se o ID do produto é válido.
-  private validateProductId(productId: unknown): string {
+  // Verifica o formato do identificador do produto.
+  private validateProductId(
+    productId: unknown
+  ): string {
     if (
       typeof productId !== "string" ||
       !productId.trim() ||
       productId.length > 255
     ) {
-      throw new CartError(400, "ID do produto inválido.");
+      throw new CartError(
+        400,
+        "ID do produto invalido."
+      );
     }
 
     return productId;
   }
 
-  // Consulta o MongoDB para garantir que o produto existe.
-  //
-  // O carrinho não controla estoque: essa validação
-  // ficará para o PostgreSQL durante o checkout.
-  private async validateProduct(productId: unknown): Promise<string> {
+  // Confirma que o produto existe no MongoDB.
+  // O estoque sera validado pelo PostgreSQL no checkout.
+  private async validateProduct(
+    productId: unknown
+  ): Promise<string> {
     const id = this.validateProductId(productId);
 
-    const product = await this.catalog.getProductById(id); //utiliza o CatalogService que já existe no projeto
+    const product = await this.catalog.getProductById(id);
 
     if (!product) {
-      throw new CartError(404, "Produto não encontrado no catálogo.");
+      throw new CartError(
+        404,
+        "Produto nao encontrado no catalogo."
+      );
     }
 
     return id;
   }
 
-  // Valida a quantidade recebida pela API.
-  //
-  // Na atualização, zero significa remover o produto.
+  // Valida quantidades de 1 a 99.
+  // Na atualizacao, zero permite remover o item.
   private validateQuantity(
     value: unknown,
     allowZero = false
@@ -81,12 +96,15 @@ export class CartService {
     return value;
   }
 
-  // Recupera o carrinho do visitante.
-  async getCart(key: string): Promise<CartResponse> {
-    const items = await this.repository.getItems(key);
+  // Consulta o carrinho de qualquer contexto.
+  async getCart(
+    context: CartContext
+  ): Promise<CartResponse> {
+    const items = await this.repository.getItems(context);
 
-    // Mantém a resposta em ordem estável.
-    items.sort((a, b) => a.productId.localeCompare(b.productId));
+    items.sort(
+      (a, b) => a.productId.localeCompare(b.productId)
+    );
 
     const totalItems = items.reduce(
       (total, item) => total + item.quantity,
@@ -101,21 +119,21 @@ export class CartService {
 
   // Adiciona um produto ao carrinho.
   async addItem(
-    key: string,
+    context: CartContext,
     body: unknown
   ): Promise<CartResponse> {
     const input = this.validateBody(body);
 
-    // Confirma que o produto existe no MongoDB.
-    const productId = await this.validateProduct(input.productId);
+    const productId = await this.validateProduct(
+      input.productId
+    );
 
-    // Se não for informada, a quantidade padrão é 1.
     const quantity = this.validateQuantity(
       input.quantity ?? 1
     );
 
     const added = await this.repository.addItem(
-      key,
+      context,
       productId,
       quantity
     );
@@ -123,16 +141,16 @@ export class CartService {
     if (!added) {
       throw new CartError(
         400,
-        "O carrinho permite no máximo 99 unidades deste produto."
+        "O carrinho permite no maximo 99 unidades deste produto."
       );
     }
 
-    return this.getCart(key);
+    return this.getCart(context);
   }
 
-  // Substitui a quantidade de um produto.
+  // Define uma nova quantidade para o produto.
   async updateQuantity(
-    key: string,
+    context: CartContext,
     productId: unknown,
     body: unknown
   ): Promise<CartResponse> {
@@ -140,44 +158,43 @@ export class CartService {
 
     const id = this.validateProductId(productId);
 
-    // Na atualização, zero é permitido.
     const quantity = this.validateQuantity(
       input.quantity,
       true
     );
 
     if (quantity === 0) {
-      // Quantidade zero remove o produto.
-      await this.repository.removeItem(key, id);
+      await this.repository.removeItem(context, id);
     } else {
-      // Confirma que o produto existe antes de atualizar.
       await this.validateProduct(id);
 
       await this.repository.setQuantity(
-        key,
+        context,
         id,
         quantity
       );
     }
 
-    return this.getCart(key);
+    return this.getCart(context);
   }
 
-  // Remove um produto específico.
+  // Remove um produto do carrinho.
   async removeItem(
-    key: string,
+    context: CartContext,
     productId: unknown
   ): Promise<CartResponse> {
     const id = this.validateProductId(productId);
 
-    await this.repository.removeItem(key, id);
+    await this.repository.removeItem(context, id);
 
-    return this.getCart(key);
+    return this.getCart(context);
   }
 
   // Esvazia completamente o carrinho.
-  async clear(key: string): Promise<CartResponse> {
-    await this.repository.clear(key);
+  async clear(
+    context: CartContext
+  ): Promise<CartResponse> {
+    await this.repository.clear(context);
 
     return {
       items: [],
@@ -186,14 +203,9 @@ export class CartService {
   }
 }
 
-// TODO (AUTENTICACAO):
-// Quando o PostgreSQL disponibilizar cadastro e login,
-// implementar a associação do carrinho ao userId.
+// TODO (INTEGRACAO AUTH):
+// O middleware de autenticacao devera construir
+// createUserCartContext(req.user.id).
 //
-// Também será necessário mesclar os produtos de:
-// cart:guest:{sessionId}
-// com:
-// cart:{userId}
-//
-// Após a mesclagem bem-sucedida, remover o carrinho
-// visitante e aplicar o TTL de 7 dias ao autenticado.
+// A mesclagem do carrinho visitante com o carrinho
+// autenticado sera implementada na proxima entrega.
