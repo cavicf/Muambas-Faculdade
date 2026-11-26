@@ -1,14 +1,17 @@
+
 {
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/server.ts",
-    "start": "tsx src/server.ts",
-    "seed:mongo": "tsx src/seed/mongoDB/seed.ts",
-    "seed:postgres": "tsx src/seed/postgres/seed.ts",
-    "typecheck": "tsc --noEmit"
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "tsx watch src/server.ts",
+  "start": "tsx src/server.ts",
+  "seed:mongo": "tsx src/seed/mongoDB/seed.ts",
+  "seed:postgres": "tsx src/seed/postgres/seed.ts",
+  "test:redis:user-cart": "tsx src/scripts/redis/test-user-cart.ts",
+  "test:redis:session": "tsx src/scripts/redis/test-session.ts",
+  "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
