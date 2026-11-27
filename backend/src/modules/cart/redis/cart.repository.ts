@@ -101,6 +101,46 @@ export class CartRepository {
       .exec();
   }
 
+  // Mescla o carrinho de origem (visitante) no de destino (usuário).
+  //
+  // Executado de forma atômica por script Lua:
+  // - soma as quantidades de cada produto, respeitando o limite de 99;
+  // - renova o TTL do carrinho de destino;
+  // - apaga o carrinho de origem.
+  //
+  // Retorna quantos produtos diferentes foram mesclados.
+  async merge(
+    source: CartContext,
+    target: CartContext
+  ): Promise<number> {
+    const script = `
+      local items = redis.call("HGETALL", KEYS[1])
+
+      if #items == 0 then
+        return 0
+      end
+
+      for i = 1, #items, 2 do
+        local current = tonumber(redis.call("HGET", KEYS[2], items[i]) or "0")
+        local total = math.min(99, current + tonumber(items[i + 1]))
+
+        redis.call("HSET", KEYS[2], items[i], total)
+      end
+
+      redis.call("EXPIRE", KEYS[2], tonumber(ARGV[1]))
+      redis.call("DEL", KEYS[1])
+
+      return #items / 2
+    `;
+
+    const result = await this.redis.eval(script, {
+      keys: [source.key, target.key],
+      arguments: [String(target.ttlSeconds)]
+    });
+
+    return Number(result);
+  }
+
   // Esvazia o carrinho e remove sua chave do Redis.
   async clear(
     context: CartContext
