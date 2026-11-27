@@ -1,9 +1,11 @@
-//Identificação do visitante ficará em uma função dentro de cart.routes.ts
-//Backend gerará automaticamente o UUID e o enviará ao navegador por um cookie HttpOnly
-
-//As cinco rotas existentes continuam atendendo visitantes normalmente.
-//Ainda não foi cirado endpoints autenticados.
-//Ninguém poderá informar arbitrariamente um ID de usuário para acessar o carrinho de outra pessoa.
+//Identificação do carrinho:
+//- Usuario autenticado (req.user preenchido pelo middleware authenticate,
+//  a partir de session:{tokenId} no Redis): cart:{userId}, TTL 7 dias.
+//- Visitante: UUID gerado pelo backend em cookie HttpOnly,
+//  cart:guest:{sessionId}, TTL 24 horas.
+//
+//Ninguém pode informar arbitrariamente um ID de usuário para acessar
+//o carrinho de outra pessoa: o userId vem somente da sessão validada.
 
 import { randomUUID } from "node:crypto";
 
@@ -18,17 +20,38 @@ import { CartError } from "./cart.types";
 
 import {
   createGuestCartContext,
+  createUserCartContext,
   type CartContext
 } from "./cart.context";
 
 // Cookie utilizado para identificar visitantes.
-const COOKIE_NAME = "muambas_guest";
+export const GUEST_COOKIE_NAME = "muambas_guest";
 
 // Validade do cookie visitante: 24 horas.
 const COOKIE_TTL_MS = 24 * 60 * 60 * 1000;
 
+// path "/api" (e nao "/api/cart") para que a rota de login
+// receba o cookie e consiga mesclar o carrinho visitante.
+export const GUEST_COOKIE_PATH = "/api";
+
 const UUID_V4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+// Le o UUID do visitante, se existir e for valido.
+export function readGuestSessionId(req: Request): string | null {
+  const received: unknown = req.cookies?.[GUEST_COOKIE_NAME];
+
+  return typeof received === "string" && UUID_V4_REGEX.test(received)
+    ? received
+    : null;
+}
+
+// Remove o cookie visitante (apos a mesclagem no login).
+// Tambem limpa o path antigo "/api/cart", usado pela versao anterior.
+export function clearGuestCookie(res: Response): void {
+  res.clearCookie(GUEST_COOKIE_NAME, { path: GUEST_COOKIE_PATH });
+  res.clearCookie(GUEST_COOKIE_NAME, { path: "/api/cart" });
+}
 
 // Identifica o visitante por cookie HttpOnly.
 //
@@ -41,25 +64,34 @@ function getGuestCartContext(
   res: Response,
   refresh = false
 ): CartContext {
-  const received: unknown = req.cookies?.[COOKIE_NAME];
+  const received = readGuestSessionId(req);
 
-  const valid =
-    typeof received === "string" &&
-    UUID_V4_REGEX.test(received);
+  const sessionId = received ?? randomUUID();
 
-  const sessionId = valid ? received : randomUUID();
-
-  if (!valid || refresh) {
-    res.cookie(COOKIE_NAME, sessionId, {
+  if (!received || refresh) {
+    res.cookie(GUEST_COOKIE_NAME, sessionId, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       maxAge: COOKIE_TTL_MS,
-      path: "/api/cart"
+      path: GUEST_COOKIE_PATH
     });
   }
 
   return createGuestCartContext(sessionId);
+}
+
+// Usuario logado usa o carrinho dele; visitante, o carrinho do cookie.
+export function getCartContext(
+  req: Request,
+  res: Response,
+  refresh = false
+): CartContext {
+  if (req.user) {
+    return createUserCartContext(req.user.id);
+  }
+
+  return getGuestCartContext(req, res, refresh);
 }
 
 // Executa as operacoes e trata os erros HTTP.
@@ -96,7 +128,7 @@ export function createCartRoutes(
   // GET /api/cart
   router.get("/cart", (req, res) => {
     void reply(res, () =>
-      service.getCart(getGuestCartContext(req, res))
+      service.getCart(getCartContext(req, res))
     );
   });
 
@@ -104,7 +136,7 @@ export function createCartRoutes(
   router.post("/cart/items", (req, res) => {
     void reply(res, () =>
       service.addItem(
-        getGuestCartContext(req, res, true),
+        getCartContext(req, res, true),
         req.body
       )
     );
@@ -114,7 +146,7 @@ export function createCartRoutes(
   router.patch("/cart/items/:productId", (req, res) => {
     void reply(res, () =>
       service.updateQuantity(
-        getGuestCartContext(req, res, true),
+        getCartContext(req, res, true),
         req.params.productId,
         req.body
       )
@@ -125,7 +157,7 @@ export function createCartRoutes(
   router.delete("/cart/items/:productId", (req, res) => {
     void reply(res, () =>
       service.removeItem(
-        getGuestCartContext(req, res, true),
+        getCartContext(req, res, true),
         req.params.productId
       )
     );
@@ -134,31 +166,13 @@ export function createCartRoutes(
   // DELETE /api/cart
   router.delete("/cart", (req, res) => {
     void reply(res, () =>
-      service.clear(getGuestCartContext(req, res))
+      service.clear(getCartContext(req, res))
     );
   });
 
   return router;
 }
 
-// TODO (AUTH):
-// Atualmente estas rotas continuam atendendo
-// somente visitantes.
-//
-// Na proxima entrega, o middleware autenticado
-// identificara o usuario por token validado.
-//
-// Visitante: cart:guest:{sessionId}
-// Autenticado: cart:{userId}
-//
-// Nunca permitir acesso ao carrinho autenticado
-// simplesmente recebendo um userId pela requisicao.
-//
-// TODO (SESSOES):
-// session:{tokenId} pertence ao modulo de autenticacao.
-// A geracao e a validacao de tokens ficarao para
-// a etapa de integracao.
-//
 // ATENCAO:
 // O cookie visitante ainda nao e assinado.
 // Antes de disponibilizar publicamente, revisar

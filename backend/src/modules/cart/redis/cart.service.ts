@@ -190,6 +190,14 @@ export class CartService {
     return this.getCart(context);
   }
 
+  // Mescla o carrinho visitante no carrinho do usuario (login).
+  async mergeGuestIntoUser(
+    guest: CartContext,
+    user: CartContext
+  ): Promise<number> {
+    return this.repository.merge(guest, user);
+  }
+
   // Esvazia completamente o carrinho.
   async clear(
     context: CartContext
@@ -203,9 +211,7 @@ export class CartService {
   }
 }
 
-// TODO (INTEGRACAO AUTH):
-// O middleware de autenticacao devera construir
-// createUserCartContext(req.user.id).
-//
-// A mesclagem do carrinho visitante com o carrinho
-// autenticado sera implementada na proxima entrega.
+// INTEGRACAO AUTH:
+// As rotas constroem createUserCartContext(req.user.id)
+// quando o middleware authenticate identifica uma sessao
+// valida; caso contrario, usam o carrinho visitante.

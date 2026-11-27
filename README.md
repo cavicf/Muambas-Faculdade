@@ -1,5 +1,26 @@
 # Muambas-Faculdade
 
+## Como rodar
+
+```bash
+docker compose up -d
+```
+
+```bash
+cd backend && npm install && npm run seed && npm run dev
+```
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+- `npm run seed` carrega tudo, na ordem certa, e pode ser repetido sem duplicar dados:
+  `seed:mongo` (catálogo) → `seed:postgres` (usuários) → `seed:inventory` (estoque) → `seed:orders` (pedidos históricos).
+  Só é necessário na primeira vez (ou depois de apagar algum volume).
+- **Swagger:** http://localhost:3001/docs, com todas as rotas e o roteiro para simular o checkout
+  (Seção 5 do relatório). Faça `POST /api/auth/login` primeiro: o cookie de sessão é reaproveitado
+  nas próximas chamadas.
+
 ## PostgreSQL (usuários, estoque, pedidos e pagamentos)
 
 O PostgreSQL sobe junto com os outros bancos:

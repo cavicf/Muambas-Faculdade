@@ -151,4 +151,22 @@ export class ProductRepository {
       })
       .toArray();
   }
+
+  // Atualiza o espelho de disponibilidade do produto.
+  //
+  // Chamado somente pelo OutboxProcessor: o estoque oficial
+  // fica no PostgreSQL (tabela inventory).
+  //
+  // Retorna false se o produto não existir no catálogo.
+  async updateAvailability(
+    id: string,
+    availabilityStatus: Product["availabilityStatus"]
+  ): Promise<boolean> {
+    const result = await this.collection.updateOne(
+      { _id: id },
+      { $set: { availabilityStatus } }
+    );
+
+    return result.matchedCount > 0;
+  }
 }
