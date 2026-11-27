@@ -125,6 +125,22 @@ export function createCatalogRoutes(service: CatalogService) {
     }
   });
 
+  // Listar opções de filtros do catálogo
+  router.get("/products/filters", async (req, res) => {
+    try {
+      const options = await service.getFilterOptions();
+
+      res.json(options);
+
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: "Erro ao consultar opções de filtros."
+      });
+    }
+  });
+
   // Buscar produto por ID
   router.get("/products/:id", async (req, res) => {
     try {

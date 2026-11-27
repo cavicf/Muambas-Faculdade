@@ -51,6 +51,17 @@ export class CatalogService {
     return this.repository.findCategories();
   }
 
+  // Buscar informações dos filtros do catálogo
+  async getFilterOptions() {
+    const brands = await this.repository.findBrands();
+    const maxPrice = await this.repository.findMaxPrice();
+
+    return {
+      brands,
+      maxPrice
+    };
+  }
+
   // Buscar vários produtos
   async getProductsByIds(ids: string[]) {
     return this.repository.findProductsByIds(ids);

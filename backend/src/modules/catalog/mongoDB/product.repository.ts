@@ -23,13 +23,6 @@ export class ProductRepository {
       query.brand = filters.brand;
     }
 
-    // Pesquisa textual
-    if (filters.search?.trim()) {
-      query.$text = {
-        $search: filters.search.trim()
-      };
-    }
-
     // Filtro por faixa de preço
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
       const priceFilter: {
@@ -55,12 +48,50 @@ export class ProductRepository {
       sort = { price: 1, _id: 1 };
     } else if (filters.priceOrder === "desc") {
       sort = { price: -1, _id: 1 };
-    } else if (filters.search?.trim()) {
-      sort = {
-        score: { $meta: "textScore" },
-        _id: 1
-      };
     }
+
+    const search = filters.search?.trim();
+
+  // Pesquisa textual por termos
+  if (search) {
+    const textQuery: Filter<Product> = {
+      ...query,
+      $text: {
+        $search: search
+      }
+    };
+
+    const textSort: Sort = filters.priceOrder
+      ? sort
+      : {
+          score: { $meta: "textScore" },
+          _id: 1
+        };
+
+    const products = await this.collection
+      .find(textQuery)
+      .sort(textSort)
+      .toArray();
+
+    if (products.length > 0) {
+      return products;
+    }
+
+    // Tratamento dos caracteres especiais
+    const pattern = search.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+    // Pesquisa por padrões com regex
+    query.$or = [
+      { title: { $regex: pattern, $options: "i" } },
+      { description: { $regex: pattern, $options: "i" } },
+      { brand: { $regex: pattern, $options: "i" } },
+      { productType: { $regex: pattern, $options: "i" } },
+      { tags: { $regex: pattern, $options: "i" } }
+    ];
+  }
 
     // Consultar e retornar produtos
     return this.collection.find(query).sort(sort).toArray();
@@ -89,6 +120,27 @@ export class ProductRepository {
         }
       ])
       .toArray();
+  }
+
+  // Listar marcas disponíveis
+  async findBrands(): Promise<string[]> {
+    return this.collection.distinct("brand");
+  }
+
+  // Buscar o maior preço do catálogo
+  async findMaxPrice(): Promise<number> {
+    const result = await this.collection
+      .aggregate([
+        {
+          $group: {
+            _id: null,
+            maxPrice: { $max: "$price" }
+          }
+        }
+      ])
+      .toArray();
+
+    return result[0]?.maxPrice ?? 0;
   }
 
   // Buscar vários produtos pelos IDs
